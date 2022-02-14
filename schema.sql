@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS outreach;
+
+CREATE TABLE outreach (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      address TEXT NOT NULL,
+      latitude TEXT NOT NULL,
+      longitude TEXT NOT NULL,
+      precinct INTEGER NOT NULL,
+      outreach_type TEXT NOT NULL DEFAULT "GENERAL"
+);
