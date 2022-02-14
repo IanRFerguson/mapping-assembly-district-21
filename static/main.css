@@ -1,0 +1,79 @@
+/* Global */
+body {
+      text-align: center;
+      padding: 12px;
+      font-family: 'Courier New', Courier, monospace;
+      height: auto;
+}
+
+footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+}
+
+footer p {
+      text-align: center;
+}
+
+.rbs_main {
+      width: 45%;
+      padding: 50px 0px;
+}
+
+a {
+      color: black;
+}
+
+
+/* Index */
+.page_header {
+      font-weight: bold;
+}
+
+.maps {
+      padding: 50px 0px;
+      display: inline;
+}
+
+.maps h3 {
+      display: inline-block;
+      padding: 0 10px;
+}
+
+.menu_options h2 {
+      display: block;
+      padding: 0 20px;
+}
+
+.buttonpress {
+      padding: 20px 0;
+}
+
+/* Outreach */
+.outreach_box {
+      padding: 50px 0px;
+}
+
+
+/* Maps Display */
+.map_box {
+      padding: 50px 0px;
+}
+
+.map_box iframe {
+      width: 80%;
+      height: 80%;
+}
+
+
+/* Dev dashboard */
+.dev_box {
+      padding: 50px 0px;
+}
+
+.dev_table table {
+      margin-left: auto;
+      margin-right: auto;
+}
