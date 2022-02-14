@@ -1,0 +1,39 @@
+<html>
+
+      {% extends 'template.html' %}
+
+      <body>
+
+            {% block content %}
+
+            <a href="{{ url_for('index') }}">
+                  <h1>Return to Main</h1>
+            </a>
+
+            <div class="dev_box">
+                  <h2>Developer Tools</h2>
+
+                  <p>Be advised this <b>cannot be undone</b></p>
+                  
+                  <form action="{{ url_for('reset_db') }}" method="POST">
+                        <input type="submit" value="Reset Database">
+                  </form>
+
+                  <form action="{{ url_for('reset_all_maps') }}" method="POST">
+                        <input type="submit" value="Update Map">
+                  </form>
+            </div>
+
+            <div class="dev_box">
+                  <h2>Existing Data</h2>
+                  
+                  <div class="dev_table">
+                        {{ data | safe }}
+                  </div>
+            </div>
+
+
+            {% endblock %}
+
+      </body>
+</html>
