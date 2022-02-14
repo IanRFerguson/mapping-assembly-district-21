@@ -1,0 +1,21 @@
+<html>
+
+      {% extends 'template.html' %}
+
+      <body>
+
+            {% block content %}
+
+            <a href="{{ url_for('index') }}">
+                  <h1>Return to Main</h1>
+            </a>
+
+            <div class="map_box">
+                  <h2>Assembly District 21</h2>
+                  <iframe src="{{ url_for('voter_outreach') }}"></iframe>
+            </div>
+
+            {% endblock %}
+
+      </body>
+</html>
