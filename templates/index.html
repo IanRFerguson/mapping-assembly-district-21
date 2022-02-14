@@ -1,0 +1,31 @@
+<html>
+
+      {% extends 'template.html' %}
+
+      <body>
+
+            {% block content %}
+
+            <h1 class="page_header">Voter Outreach Application</h1>
+
+            <img src="../static/images/rbs.png" class="rbs_main">
+
+            <div class="menu_options">
+                  <a href="{{ url_for('outreach') }}">
+                        <h2 style="padding: 20px 0px">Record New</h2>
+                  </a>
+                  
+                  <a href="{{ url_for('maps') }}">
+                        <h2 style="padding: 20px 0px">Progress to Date</h2>
+                  </a>
+            </div>
+
+            <footer>
+                  <p>Made with ❤️ in <a href="{{ url_for('dev') }}">San Francisco</a></p>
+            </footer>
+
+            {% endblock %}
+
+      </body>
+
+</html>
