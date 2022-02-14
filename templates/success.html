@@ -1,0 +1,20 @@
+<html>
+
+      {% extends 'template.html' %}
+
+      <body>
+
+            {% block content %}
+
+            <a href="{{ url_for('index') }}">
+                  <h1>Return to Main</h1>
+            </a>
+
+            <h2>Success!</h2>
+
+            <p>Your response <b>{{ value }}</b> has been saved</p>
+
+            {% endblock %}
+
+      </body>
+</html>
