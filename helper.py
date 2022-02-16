@@ -209,7 +209,7 @@ def map_function_all_outreach(dev=True):
       g_map = folium.Map(location=[37.5630, -122.3255], 
                          zoom_start=11)
 
-      folium.Choropleth(geo_data=toolkit,
+      folium.Choropleth(geo_data=dh,
                         data=toolkit,
                         columns=['PRECINCT', 'ID'],
                         key_on='feature.properties.PRECINCT',
@@ -250,9 +250,81 @@ def map_function_all_outreach(dev=True):
       g_map.save(outfile=os.path.join('templates/voter_outreach_map.html'))
 
 
-def map_function_specific_outreach(dev, key):
+def map_function_specific_outreach(key):
       """
-      
+      key => Outreach type derived from HTML form (e.g., lit dropping, phone banking, etc.)
+
+      Saves a leaflet.js map of a specific outreach method (key)
       """
 
-      pass
+      with sqlite3.connect('./outreach.db') as connection:
+
+            # Select all precincts where outreach has ocurred
+            query = f'select precinct from outreach where outreach_type = "{key}"'
+            
+            # Aggregate list of precincts
+            precincts = pd.read_sql(query, connection).loc[:, 'precinct']
+
+      # Convert precincts to strings
+      precincts = [str(x) for x in precincts]
+      
+      # Read in shapefile
+      geo_data = get_geo()
+
+      # Boolean - Has precinct been phone / text banked / etc?
+      geo_data['done'] = geo_data['PRECINCT'].apply(lambda x: x in list(precincts))
+      
+      # Convert bool to int (True == 1)
+      geo_data['done'] = geo_data['done'].astype(int)
+
+      # Isolate data for Choropleth
+      choro_data = geo_data.loc[:, ['PRECINCT', 'done']]
+
+      # Base leaflet map
+      g_map = folium.Map(location=[37.5630, -122.3255], zoom_start=11)
+
+      # Add choropleth layer (should be binary 0/1)
+      folium.Choropleth(geo_data=geo_data,
+                        data=choro_data,
+                        columns=['PRECINCT', 'done'],
+                        key_on='feature.properties.PRECINCT',
+                        fill_color='BuGn',
+                        line_color='grey',
+                        fill_opacity=0.76,
+                        line_opacity=0.5).add_to(g_map)
+
+      # Hover functions
+      def style_function(x): return {'fillColor': '#ffffff',
+                                     'color': '#000000',
+                                     'fillOpacity': 0.1,
+                                     'weight': 0.1}
+
+      def highlight_function(x): return {'fillColor': '#000000',
+                                         'color': '#000000',
+                                         'fillOpacity': 0.50,
+                                         'weight': 0.1}
+
+      NIL = folium.features.GeoJson(geo_data,
+                                    style_function=style_function,
+                                    control=False,
+                                    highlight_function=highlight_function,
+
+                                    tooltip=folium.features.GeoJsonTooltip(fields=['PRECINCT'],
+                                                                           aliases=[
+                                        'Precinct: '],
+                                        style=(
+                                        "background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;")
+                                    )
+                                    )
+
+      # Add hover functions to leaflet.js map
+      g_map.add_child(NIL)
+      g_map.keep_in_front(NIL)
+      folium.LayerControl().add_to(g_map)
+
+      # Format key ... Lit Drop => lit_drop
+      output_key = key.replace(' ', '_').lower()
+      output_name = f'{output_key}_outreach_map.html'
+
+      # Save map as HTML file locally
+      g_map.save(os.path.join('./templates', output_name))
