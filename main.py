@@ -10,8 +10,6 @@ fake outreach data for demonstrative purposes.
 Ian Richard Ferguson
 """
 
-
-# ---- Imports
 from flask import Flask, render_template, redirect, url_for, request
 from helper import *
 import os
@@ -30,10 +28,13 @@ if not os.path.exists('./outreach.db'):
       init_db()
 
 
-# --- Application architecture
+##########
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():      
       return render_template('index.html')
+
 
 
 @app.route('/outreach', methods=['GET', 'POST'])
@@ -69,15 +70,19 @@ def outreach():
       return render_template('outreach.html')
 
 
+
 @app.route('/success/<value>', methods=['GET'])
 def success(value): 
       return render_template('success.html', value=value)
 
 
-# ---- Maps
+#####
+
+
 @app.route('/maps', methods=['GET', 'POST'])
 def maps():
     return render_template('maps.html')
+
 
 
 @app.route('/locations', methods=['GET', 'POST'])
@@ -85,7 +90,9 @@ def voter_outreach():
     return render_template('voter_outreach_map.html')
 
 
-# --- Developer functions (these should be more hidden in production)
+#####
+
+
 @app.route('/dev', methods=['GET', 'POST'])
 def dev():
 
@@ -112,6 +119,9 @@ def reset_all_maps():
       map_function_all_outreach(DEV)
 
       return render_template('index.html')
+
+
+#####
 
 
 if __name__ == "__main__":

@@ -1,11 +1,4 @@
 #!/bin/python3
-
-# ---- Imports
-import sqlite3, folium, json, os, requests, urllib, random
-import pandas as pd
-import geopandas as gpd
-from datetime import datetime
-
 """
 BACK-END NOTES / HOW IT WORKS
 
@@ -18,7 +11,15 @@ BACK-END NOTES / HOW IT WORKS
 * Map saved as HTML file 
 """
 
-# ---- SQL helpers
+import sqlite3, folium, json, os, requests, urllib, random
+import pandas as pd
+import geopandas as gpd
+from datetime import datetime
+
+
+##########
+
+
 def init_db():
       """
       Builds Outreach DB based on schema file (or resets the DB if it already exists)
@@ -30,6 +31,7 @@ def init_db():
             connection.executescript(f.read())
 
       connection.close()
+
 
 
 def render_geo_data(address, precinct_data, outreach_type):
@@ -45,6 +47,7 @@ def render_geo_data(address, precinct_data, outreach_type):
       push_to_db(address, lat, lon, precinct_data, outreach_type)
 
 
+
 def push_to_db(address, lat, lon, precinct_data, outreach_type):
       """
       Adds user data to database
@@ -56,6 +59,7 @@ def push_to_db(address, lat, lon, precinct_data, outreach_type):
             cur.execute("""
                         INSERT INTO outreach (address, latitude, longitude, precinct, outreach_type) 
                         VALUES (?, ?, ?, ?, ?)""", (address, lat, lon, precinct_data, outreach_type))
+
 
 
 def db_to_dataframe():
@@ -70,6 +74,7 @@ def db_to_dataframe():
             data['show_date'] = data['created'].apply(lambda x: datetime.strftime(x, '%m/%d/%Y'))
             
             return data
+
 
 
 def get_all_precincts():
@@ -110,7 +115,9 @@ def get_all_precincts():
       return all_data
 
 
-# ---- Mapping helpers
+#####
+
+
 def get_geo():
       """
       Read in shapefile as Pandas DataFrame
@@ -119,6 +126,7 @@ def get_geo():
       shape = './shapes/ELECTION_PRECINCTS.shp'
       
       return gpd.read_file(shape)
+
 
 
 def get_coordinates(address):
@@ -140,12 +148,14 @@ def get_coordinates(address):
             return "ERROR", "ERROR"
 
 
+
 def get_precinct(lat, long):
       """
       
       """
 
       pass
+
 
 
 def aggregate_data(dev=True, key=None):
@@ -160,6 +170,7 @@ def aggregate_data(dev=True, key=None):
       outreach_data.columns = [x.upper() for x in outreach_data.columns]
 
       return geo.merge(outreach_data, on='PRECINCT')
+
 
 
 def fake_data():
@@ -181,6 +192,7 @@ def fake_data():
       real_data = real_data.sort_values(by='id', ascending=False).reset_index(drop=True)
       
       return real_data
+
 
 
 def map_function_all_outreach(dev=True):
@@ -206,18 +218,23 @@ def map_function_all_outreach(dev=True):
       print('\n** Writing updated map **\n')
 
       # Instantiate map
-      g_map = folium.Map(location=[37.5630, -122.3255], 
-                         zoom_start=11)
+      g_map = folium.Map(
+            location=[37.5630, -122.3255], 
+            zoom_start=11
+      )
 
-      folium.Choropleth(geo_data=dh,
-                        data=toolkit,
-                        columns=['PRECINCT', 'ID'],
-                        key_on='feature.properties.PRECINCT',
-                        fill_color='YlGnBu',
-                        fill_opacity=0.75,
-                        line_color='grey',
-                        line_opacity=0.5,
-                        legend_name='Red Bridge Outreach').add_to(g_map)
+      folium.Choropleth(
+            geo_data=dh,
+            data=toolkit,
+            columns=['PRECINCT', 'ID'],
+            key_on='feature.properties.PRECINCT',
+            fill_color='YlGnBu',
+            fill_opacity=0.75,
+            line_color='grey',
+            line_opacity=0.5,
+            legend_name='Red Bridge Outreach').add_to(g_map)
+
+      ###
 
       def style_function(x): return {'fillColor': '#ffffff',
                                      'color': '#000000',
@@ -230,17 +247,19 @@ def map_function_all_outreach(dev=True):
                                           'fillOpacity': 0.50,
                                           'weight': 0.1}
 
+      ###
 
-      NIL = folium.features.GeoJson(toolkit,
-                                    style_function=style_function,
-                                    control=False,
-                                    highlight_function=highlight_function,
-            
-      tooltip=folium.features.GeoJsonTooltip(fields=['PRECINCT', 'ID'],
-                                             aliases=['Precinct: ', 'Value: '],
-                                             style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;")
+      NIL = folium.features.GeoJson(
+            toolkit,
+            style_function=style_function,
+            control=False,
+            highlight_function=highlight_function,
+            tooltip=folium.features.GeoJsonTooltip(
+                  fields=['PRECINCT', 'ID'],
+                  aliases=['Precinct: ', 'Value: '],
+                  style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;")
             )
-            )
+      )
 
       g_map.add_child(NIL)
       g_map.keep_in_front(NIL)
@@ -248,6 +267,7 @@ def map_function_all_outreach(dev=True):
 
       # Save map in the templates folder
       g_map.save(outfile=os.path.join('templates/voter_outreach_map.html'))
+
 
 
 def map_function_specific_outreach(key):
@@ -284,38 +304,49 @@ def map_function_specific_outreach(key):
       g_map = folium.Map(location=[37.5630, -122.3255], zoom_start=11)
 
       # Add choropleth layer (should be binary 0/1)
-      folium.Choropleth(geo_data=geo_data,
-                        data=choro_data,
-                        columns=['PRECINCT', 'done'],
-                        key_on='feature.properties.PRECINCT',
-                        fill_color='BuGn',
-                        line_color='grey',
-                        fill_opacity=0.76,
-                        line_opacity=0.5).add_to(g_map)
+      folium.Choropleth(
+            geo_data=geo_data,
+            data=choro_data,
+            columns=['PRECINCT', 'done'],
+            key_on='feature.properties.PRECINCT',
+            fill_color='BuGn',
+            line_color='grey',
+            fill_opacity=0.76,
+            line_opacity=0.5).add_to(g_map)
+
+      ###
 
       # Hover functions
-      def style_function(x): return {'fillColor': '#ffffff',
-                                     'color': '#000000',
-                                     'fillOpacity': 0.1,
-                                     'weight': 0.1}
+      def style_function(x): 
+            return {
+                  'fillColor': '#ffffff',
+                  'color': '#000000',
+                  'fillOpacity': 0.1,
+                  'weight': 0.1
+            }
 
-      def highlight_function(x): return {'fillColor': '#000000',
-                                         'color': '#000000',
-                                         'fillOpacity': 0.50,
-                                         'weight': 0.1}
 
-      NIL = folium.features.GeoJson(geo_data,
-                                    style_function=style_function,
-                                    control=False,
-                                    highlight_function=highlight_function,
+      def highlight_function(x): 
+            return {
+                  'fillColor': '#000000',
+                  'color': '#000000',
+                  'fillOpacity': 0.50,
+                  'weight': 0.1
+            }
 
-                                    tooltip=folium.features.GeoJsonTooltip(fields=['PRECINCT'],
-                                                                           aliases=[
-                                        'Precinct: '],
-                                        style=(
-                                        "background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;")
-                                    )
-                                    )
+      ###
+
+      NIL = folium.features.GeoJson(
+            geo_data,
+            style_function=style_function,
+            control=False,
+            highlight_function=highlight_function,
+            tooltip=folium.features.GeoJsonTooltip(
+                  fields=['PRECINCT'],
+                  aliases=['Precinct: '],
+                  style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;")
+            )
+      )
 
       # Add hover functions to leaflet.js map
       g_map.add_child(NIL)
